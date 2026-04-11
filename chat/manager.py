@@ -1,4 +1,5 @@
 from fastapi import WebSocket
+from user.models import User
 
 class ConnectionManager:
     def __init__(self):
