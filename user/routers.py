@@ -17,9 +17,10 @@ manager = ConnectionManager()
 def register_user(user: UserCreate,
                   db: Session = Depends(get_db)):
     
-    user_exists = crud.get_user_by_email(email=user.email, db=db)
-    if user_exists is not None:
-        raise HTTPException(status_code=401, detail="This email is already taken")
+    user_email_exists = crud.get_user_by_email(email=user.email, db=db)
+    username_exists = crud.get_user_by_username(username=user.username, db=db)
+    if username_exists is not None or user_email_exists is not None:
+        raise HTTPException(status_code=400, detail="Username or email address is already exists")
     
     new_user = crud.create_user(user=user, db=db)
     
