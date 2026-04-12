@@ -3,9 +3,14 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from database import Base
-from user.models import User
+
 
 zone = ZoneInfo("Europe/Moscow")
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from user.models import User
 
 class Message(Base):
     __tablename__ = "messages"

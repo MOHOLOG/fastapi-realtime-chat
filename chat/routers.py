@@ -1,10 +1,13 @@
-from fastapi import WebSocket, APIRouter, Depends, status, WebSocketDisconnect
+from fastapi import HTTPException, WebSocket, APIRouter, Depends, status, WebSocketDisconnect
 from sqlalchemy.orm import Session
 import jwt
-from user import crud
+from user import crud as user_crud
+import crud as chat_crud
 from auth import utils
 from database import get_db
 from chat.manager import ConnectionManager
+from message.schemas import MessageCreate, MessageResponse
+from user.schemas import UserResponse
 
 manager = ConnectionManager()
 router = APIRouter()
@@ -17,7 +20,7 @@ async def connect_user(websocket: WebSocket,
         user_data = utils.decode_jwt(token)
         username = user_data["username"]
 
-        current_user = crud.get_user_by_username(username=username, db=db)
+        current_user = user_crud.get_user_by_username(username=username, db=db)
         if not current_user:
             print("BOUNCER: User not found in database!")
             raise ValueError("User not found")
@@ -38,7 +41,11 @@ async def connect_user(websocket: WebSocket,
     try:
         while True:
             data = await websocket.receive_json()
-            await  manager.broadcast(data)
+            data = MessageCreate.model_validate(data)
+            message = chat_crud.create_message(user_id=current_user.id, message=data, db=db)
+            message_response = MessageResponse.model_validate(message)
+
+            await  manager.broadcast(message_response)
     
     except WebSocketDisconnect:
         manager.disconnect(username=current_user.username)

@@ -179,3 +179,14 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+
+# Exclude all PEM and CRT files
+*.pem
+*.crt
+*.key
+*.pub
+
+# Exclude specific sensitive folders
+certs/
+secrets/
