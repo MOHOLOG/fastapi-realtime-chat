@@ -2,7 +2,7 @@ from fastapi import HTTPException, WebSocket, APIRouter, Depends, status, WebSoc
 from sqlalchemy.orm import Session
 import jwt
 from user import crud as user_crud
-import crud as chat_crud
+from chat import crud as chat_crud
 from auth import utils
 from database import get_db
 from chat.manager import ConnectionManager
@@ -45,7 +45,7 @@ async def connect_user(websocket: WebSocket,
             message = chat_crud.create_message(user_id=current_user.id, message=data, db=db)
             message_response = MessageResponse.model_validate(message)
 
-            await  manager.broadcast(message_response)
+            await  manager.broadcast(message=message_response)
     
     except WebSocketDisconnect:
         manager.disconnect(username=current_user.username)
