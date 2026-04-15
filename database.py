@@ -27,6 +27,8 @@ async def get_db():
         
     
 async def init_db():
-    import user, message, chat
+    import user
+    import message
+    import chat
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

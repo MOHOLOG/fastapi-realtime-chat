@@ -60,7 +60,6 @@ async def connect_user(websocket: WebSocket,
                 await websocket.send_text(f"Validation error: {error_detail[0]["msg"]}")
                 continue
 
-            await  manager.broadcast(username=username, message=message_response)
     
     except WebSocketDisconnect:
         manager.disconnect(username=current_user.username)
