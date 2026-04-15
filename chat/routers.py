@@ -1,4 +1,5 @@
-from fastapi import HTTPException, WebSocket, APIRouter, Depends, status, WebSocketDisconnect
+from fastapi import WebSocket, APIRouter, Depends, status, WebSocketDisconnect
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 import jwt
 from user import crud as user_crud
@@ -7,7 +8,7 @@ from auth import utils
 from database import get_db
 from chat.manager import ConnectionManager
 from message.schemas import MessageCreate, MessageResponse
-from user.schemas import UserResponse
+from json import JSONDecodeError
 
 manager = ConnectionManager()
 router = APIRouter()
@@ -40,12 +41,26 @@ async def connect_user(websocket: WebSocket,
 
     try:
         while True:
-            data = await websocket.receive_json()
-            data = MessageCreate.model_validate(data)
-            message = chat_crud.create_message(user_id=current_user.id, message=data, db=db)
-            message_response = MessageResponse.model_validate(message)
+            try:
+                data = await websocket.receive_json()
+                data = MessageCreate.model_validate(data)
+                message = chat_crud.create_message(user_id=current_user.id, message=data, db=db)
+                message_response = MessageResponse.model_validate(message)
 
-            await  manager.broadcast(message=message_response)
+                await  manager.broadcast(username=current_user.username, message=message_response)
+            
+            except JSONDecodeError as e:
+                print(f"Error: {e}")
+                await websocket.send_text(f"Error: {e.msg}")
+                continue
+            
+            except ValidationError as e:
+                error_detail = e.errors()
+                print(f"Validation error: {error_detail}")
+                await websocket.send_text(f"Validation error: {error_detail[0]["msg"]}")
+                continue
+
+            await  manager.broadcast(username=username, message=message_response)
     
     except WebSocketDisconnect:
         manager.disconnect(username=current_user.username)
