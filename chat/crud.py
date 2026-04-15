@@ -1,14 +1,10 @@
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from message.models import Message
 from message.schemas import MessageCreate
-from user.crud import get_user_by_username
-from user.models import User
 
-
-def create_message(user_id: int, 
+async def create_message(user_id: int, 
                    message: MessageCreate,
-                   db: Session):
+                   db: AsyncSession):
 
     new_message = Message(
         text = message.text,
@@ -16,7 +12,7 @@ def create_message(user_id: int,
     )
 
     db.add(new_message)
-    db.commit()
-    db.refresh(new_message)
+    await db.commit()
+    await db.refresh(new_message)
 
     return new_message
