@@ -17,7 +17,6 @@ def hash_password(password: str):
 def verify_password(passed_password: bytes, current_password: bytes):
     return bcrypt.checkpw(passed_password, current_password)
 
-
 def encode_jwt(
         payload: dict,
         private_key: str = settings.private_key_path.read_text(),

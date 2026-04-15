@@ -1,23 +1,29 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from user.models import User
 from user.schemas import UserCreate, UserUpdate
 from auth import utils
 
-def get_user_by_username(
+async def get_user_by_username(
         username: str,
-        db: Session
+        db: AsyncSession
     ):
 
-    return db.execute(select(User).where(User.username == username)).scalar_one_or_none()
+    result = await db.execute(select(User).where(User.username == username))
+    user = result.scalar_one_or_none()
 
-def get_user_by_email(
+    return user
+
+async def get_user_by_email(
         email: str,
-        db: Session
+        db: AsyncSession
     ):
-    return db.execute(select(User).where(User.email == email)).scalar_one_or_none()
+    result = await db.execute(select(User).where(User.email == email))
+    user = result.scalar_one_or_none()
 
-def create_user(user: UserCreate, db: Session):
+    return user
+
+async def create_user(user: UserCreate, db: AsyncSession):
     hashed_password = utils.hash_password(password=user.password)
 
     new_user = User(
@@ -27,17 +33,17 @@ def create_user(user: UserCreate, db: Session):
     )
 
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    await db.commit()
+    await db.refresh(new_user)
     
     return new_user
 
-def update_user(current_user: User,
+async def update_user(current_user: User,
                 new_username: str | None,
                 new_email: str | None,
                 new_password: str | None,
                 current_password: str | None,
-                db: Session):
+                db: AsyncSession):
     if new_password and current_password:
         stored_password = current_user.hashed_password.encode("utf-8")
         correct_password = utils.verify_password(passed_password=current_password.encode("utf-8"), current_password=stored_password)
@@ -55,8 +61,8 @@ def update_user(current_user: User,
     if new_email:
         current_user.email = new_email
     
-    db.commit()
-    db.refresh(current_user)
+    await db.commit()
+    await db.refresh(current_user)
 
     return current_user
 

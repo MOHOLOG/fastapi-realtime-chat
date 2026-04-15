@@ -1,6 +1,6 @@
 from fastapi import WebSocket, APIRouter, Depends, status, WebSocketDisconnect
 from pydantic import ValidationError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
 from user import crud as user_crud
 from chat import crud as chat_crud
@@ -16,12 +16,12 @@ router = APIRouter()
 @router.websocket("/ws")
 async def connect_user(websocket: WebSocket,
                        token: str,
-                       db: Session = Depends(get_db)):
+                       db: AsyncSession = Depends(get_db)):
     try:
-        user_data = utils.decode_jwt(token)
+        user_data = utils.decode_jwt(token=token)
         username = user_data["username"]
 
-        current_user = user_crud.get_user_by_username(username=username, db=db)
+        current_user = await user_crud.get_user_by_username(username=username, db=db)
         if not current_user:
             print("BOUNCER: User not found in database!")
             raise ValueError("User not found")
@@ -44,7 +44,7 @@ async def connect_user(websocket: WebSocket,
             try:
                 data = await websocket.receive_json()
                 data = MessageCreate.model_validate(data)
-                message = chat_crud.create_message(user_id=current_user.id, message=data, db=db)
+                message = await chat_crud.create_message(user_id=current_user.id, message=data, db=db)
                 message_response = MessageResponse.model_validate(message)
 
                 await  manager.broadcast(username=current_user.username, message=message_response)
@@ -60,7 +60,6 @@ async def connect_user(websocket: WebSocket,
                 await websocket.send_text(f"Validation error: {error_detail[0]["msg"]}")
                 continue
 
-            await  manager.broadcast(username=username, message=message_response)
     
     except WebSocketDisconnect:
         manager.disconnect(username=current_user.username)
