@@ -1,0 +1,17 @@
+# Secret folders (Like your JWT keys)
+certs/
+.env
+
+# Git stuff (makes the image smaller)
+.git
+.gitignore
+
+# Python junk
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Docker files themselves
+Dockerfile
+docker-compose.yml
