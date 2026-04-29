@@ -41,8 +41,16 @@ async def connect_user(websocket: WebSocket,
 
     try:
         while True:
+            data = await websocket.receive_json()
+
+            if await manager.is_rate_limited(current_user.username):
+                await websocket.send_json({
+                    "type": "error",
+                    "data": "Rate limit exceeded. Please wait a few seconds."
+                })
+                continue
+
             try:
-                data = await websocket.receive_json()
                 data = MessageCreate.model_validate(data)
                 message = await chat_crud.create_message(user_id=current_user.id, message=data, db=db)
                 message_response = MessageResponse.model_validate(message)
@@ -57,7 +65,7 @@ async def connect_user(websocket: WebSocket,
             except ValidationError as e:
                 error_detail = e.errors()
                 print(f"Validation error: {error_detail}")
-                await websocket.send_text(f"Validation error: {error_detail[0]["msg"]}")
+                await websocket.send_text(f"Validation error: {error_detail[0]['msg']}")
                 continue
 
     
