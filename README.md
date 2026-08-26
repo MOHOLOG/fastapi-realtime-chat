@@ -25,7 +25,7 @@ A high-performance backend built with FastAPI, featuring real-time WebSocket com
 
 ### 1. Clone the repository
 ```bash
-git clone [https://github.com/MOHOLOG/fastapi-realtime-chat.git](https://github.com/MOHOLOG/fastapi-realtime-chat.git)
+git clone   https://github.com/MOHOLOG/fastapi-realtime-chat.git
 cd fastapi-realtime-chat
 ```
 
