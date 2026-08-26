@@ -14,7 +14,7 @@ A high-performance backend built with FastAPI, featuring real-time WebSocket com
 
 *   **Framework:** FastAPI (Python 3.11+)
 *   **Database:** PostgreSQL, SQLAlchemy (Async), Alembic (Migrations)
-*   **Auth:** PyJWT, Passlib, Bcrypt
+*   **Auth:** PyJWT, Bcrypt
 *   **Infrastructure:** Docker, Docker Compose
 
 ## 📦 Getting Started
@@ -25,17 +25,17 @@ A high-performance backend built with FastAPI, featuring real-time WebSocket com
 
 ### 1. Clone the repository
 ```bash
-git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
-cd your-repo-name
+git clone [https://github.com/MOHOLOG/fastapi-realtime-chat.git](https://github.com/MOHOLOG/fastapi-realtime-chat.git)
+cd fastapi-realtime-chat
 ```
 
 ### 2. Environment Variables
-Create a `.env` file in the root directory (next to `docker-compose.yaml`) and add the following:
+Create a `.env` file in the root directory (next to `docker-compose.yaml`) and configure your secure credentials:
 ```ini
-POSTGRES_USER=myuser
-POSTGRES_PASSWORD=mypassword
-POSTGRES_DB=taskmanager
-DATABASE_URL=postgresql+asyncpg://myuser:mypassword@db:5432/taskmanager
+POSTGRES_USER=<YOUR_POSTGRES_USER>
+POSTGRES_PASSWORD=<YOUR_POSTGRES_PASSWORD>
+POSTGRES_DB=<YOUR_POSTGRES_DB>
+DATABASE_URL=postgresql+asyncpg://<YOUR_POSTGRES_USER>:<YOUR_POSTGRES_PASSWORD>@db:5432/<YOUR_POSTGRES_DB>
 ```
 
 ### 3. Generate Security Certificates
